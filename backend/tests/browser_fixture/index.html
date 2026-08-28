@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>ExampleCorp Careers</title>
+  <style>
+    body { font-family: system-ui, sans-serif; margin: 2rem; }
+    nav a { margin-right: 1rem; }
+    input[type="search"] { padding: 0.4rem; width: 240px; }
+  </style>
+</head>
+<body>
+  <script>
+    // Test hook: counts Enter key presses (site-search execution check).
+    window.__enter_count = 0;
+    document.addEventListener("keydown", function (e) {
+      if (e.key === "Enter") window.__enter_count += 1;
+    });
+  </script>
+  <header>
+    <h1>ExampleCorp</h1>
+    <nav>
+      <a href="/index.html">Home</a>
+      <!-- Icon-font nav item: innerText is "work_outline Jobs" — mirrors
+           real-world ligature noise the LLM echoes back verbatim. -->
+      <a href="/jobs.html"><span class="material-icons">work_outline</span> Jobs</a>
+      <a href="/about.html">About</a>
+    </nav>
+    <!-- Unrelated auth control: must NOT block clicks for other texts. -->
+    <button type="button" id="signin-btn">Sign in</button>
+  </header>
+
+  <main>
+    <h2>Careers at ExampleCorp</h2>
+    <p>We build example software. Search our openings:</p>
+
+    <!-- A real search box: the agent MAY type here and only here. -->
+    <form onsubmit="return false;">
+      <input type="search" name="q" placeholder="Search jobs" aria-label="Search jobs" />
+    </form>
+
+    <!-- A form the agent must NEVER interact with or submit. -->
+    <form id="job-alerts">
+      <label>Email for job alerts: <input type="email" name="email" /></label>
+      <button type="button">Subscribe</button>
+    </form>
+  </main>
+
+  <footer><a href="/contact.html">Contact</a></footer>
+</body>
+</html>

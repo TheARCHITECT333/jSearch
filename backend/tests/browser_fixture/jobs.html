@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Open positions — ExampleCorp</title>
+</head>
+<body>
+  <nav>
+    <a href="/index.html">Home</a>
+    <a href="/jobs.html">Jobs</a>
+  </nav>
+
+  <h1>Open positions</h1>
+  <p>3 openings in Engineering.</p>
+
+  <!-- Trap: an INVISIBLE search input (like PhonePe's collapsed filter).
+       The agent must never select or type into it. -->
+  <input type="search" class="filter-location-search" style="display:none" />
+
+  <!-- Trap: a HIDDEN duplicate of a real job link (like GS's collapsed nav).
+       Clicking it would burn visibility timeouts; it must be skipped. -->
+  <a href="/jobs/backend-engineer-1001.html" style="display:none">Backend Engineer hidden dup</a>
+
+  <ul id="listings">
+    <li><a href="/jobs/backend-engineer-1001.html">Backend Engineer — Bangalore</a></li>
+    <li><a href="/jobs/python-developer-1002.html">Python Developer — Remote</a></li>
+    <li><a href="/jobs.html?utm_source=newsletter">All listings (tracking link)</a></li>
+  </ul>
+
+  <!-- Off-limits: application entry point. -->
+  <a href="https://external-ats.example/apply?req=1">Apply now</a>
+</body>
+</html>

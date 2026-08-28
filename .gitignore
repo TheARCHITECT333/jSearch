@@ -1,0 +1,16 @@
+.env
+node_modules/
+dist/
+build/
+__pycache__/
+.venv/
+venv/
+*.pyc
+.pytest_cache/
+.ruff_cache/
+*.tsbuildinfo
+data/
+*.db
+*.db-wal
+*.db-shm
+.DS_Store
