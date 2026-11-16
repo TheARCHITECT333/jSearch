@@ -15,15 +15,13 @@ interface Props {
   onChange: (patch: Partial<FilterState>) => void;
 }
 
-const CONTROL =
-  "rounded-control border border-edge bg-surface px-2.5 py-1.5 font-mono text-[12px] " +
-  "text-ink transition-colors hover:border-faint";
+const CONTROL = "control";
 
 export function JobFilters({ filters, companies, onChange }: Props) {
   return (
     <div
       data-testid="job-filters"
-      className="flex flex-wrap items-center gap-2 rounded-card border border-edge bg-surface p-3"
+      className="card flex flex-wrap items-center gap-3 px-5 py-4"
     >
       <select
         aria-label="Filter by company"
@@ -56,31 +54,31 @@ export function JobFilters({ filters, companies, onChange }: Props) {
         placeholder="Location..."
         value={filters.location}
         onChange={(e) => onChange({ location: e.target.value })}
-        className={`${CONTROL} w-28 placeholder:text-faint`}
+        className={`${CONTROL} w-32 placeholder:text-faint`}
       />
 
-      <label className="flex cursor-pointer items-center gap-1.5 text-[12px] text-body">
+      <label className="caption flex cursor-pointer items-center gap-2 text-body">
         <input
           type="checkbox"
           checked={filters.savedOnly}
           onChange={(e) => onChange({ savedOnly: e.target.checked })}
-          className="h-3.5 w-3.5 rounded-sm accent-signal"
+          className="h-4 w-4 accent-primary"
         />
         Saved only
       </label>
 
-      <label className="flex cursor-pointer items-center gap-1.5 text-[12px] text-body">
+      <label className="caption flex cursor-pointer items-center gap-2 text-body">
         <input
           type="checkbox"
           checked={filters.showIgnored}
           onChange={(e) => onChange({ showIgnored: e.target.checked })}
-          className="h-3.5 w-3.5 rounded-sm accent-signal"
+          className="h-4 w-4 accent-primary"
         />
         Show ignored
       </label>
 
       <label className="ml-auto flex items-center gap-2">
-        <span className="eyebrow text-faint">Sort</span>
+        <span className="caption text-faint">Sort</span>
         <select
           aria-label="Sort jobs"
           value={filters.sortBy}

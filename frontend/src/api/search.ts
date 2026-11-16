@@ -1,10 +1,10 @@
-import { apiGet, apiPost, API_BASE } from "./client";
+import { apiGet, apiPost, apiPostFile, API_BASE } from "./client";
 import type {
   LLMSettings,
   SearchStatus,
   StartSearchRequest,
 } from "../types/search";
-import type { CandidateProfile } from "../types/resume";
+import type { CandidateProfile, ResumeScore, ScoreLevel } from "../types/resume";
 
 export async function extractProfile(
   resumeLatex: string,
@@ -15,6 +15,20 @@ export async function extractProfile(
     llm,
   });
   return response.profile;
+}
+
+/** PDF resume -> plain text; the rest of the app then treats it like a .tex. */
+export async function pdfToText(file: Blob): Promise<string> {
+  const response = await apiPostFile<{ text: string }>("/api/resume/pdf", file);
+  return response.text;
+}
+
+export function scoreResume(
+  resumeText: string,
+  level: ScoreLevel,
+  llm: LLMSettings & { api_key?: string }
+): Promise<ResumeScore> {
+  return apiPost<ResumeScore>("/api/score", { resume_latex: resumeText, level, llm });
 }
 
 export async function startSearch(

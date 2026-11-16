@@ -18,22 +18,20 @@ export function SearchButton({
   const disabled = running || disabledReasons.length > 0;
 
   return (
-    <div className="card p-4">
-      <div className="flex flex-wrap items-center gap-3">
+    <div className="card p-6">
+      <div className="flex flex-wrap items-center gap-4">
         <button
           type="button"
           data-testid="find-jobs-button"
           onClick={onStart}
           disabled={disabled}
-          className="rounded-control bg-ink px-6 py-2.5 text-[14px] font-semibold tracking-tight
-                     text-white transition-opacity hover:opacity-85
-                     disabled:cursor-not-allowed disabled:opacity-25"
+          className="btn-primary"
         >
           {running ? (
             <span className="flex items-center gap-2">
               <span
                 aria-hidden
-                className="inline-block h-3.5 w-3.5 animate-spin rounded-full border-2 border-white/30 border-t-white"
+                className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white"
               />
               Searching...
             </span>
@@ -43,15 +41,14 @@ export function SearchButton({
         </button>
 
         <label className="flex items-center gap-2">
-          <span className="eyebrow text-faint">Posted within</span>
+          <span className="caption text-faint">Posted within</span>
           <select
             value={freshness}
             onChange={(e) => onFreshnessChange(e.target.value as Freshness)}
             disabled={running}
             aria-label="Job posting age limit"
             data-testid="freshness-select"
-            className="rounded-control border border-edge bg-surface px-2.5 py-1.5 font-mono text-[12px] text-ink
-                       transition-colors hover:border-faint disabled:opacity-40"
+            className="control disabled:opacity-40"
           >
             {(Object.keys(FRESHNESS_LABELS) as Freshness[]).map((key) => (
               <option key={key} value={key}>
@@ -64,12 +61,12 @@ export function SearchButton({
 
       {disabledReasons.length > 0 && !running && (
         <ul
-          className="mt-3 space-y-1 border-t border-edge pt-3"
+          className="mt-5 space-y-1.5 border-t border-divider pt-4"
           data-testid="disabled-reasons"
         >
           {disabledReasons.map((reason) => (
-            <li key={reason} className="flex gap-2 text-[12px] text-body">
-              <span aria-hidden className="font-mono text-faint">
+            <li key={reason} className="caption flex gap-2 text-body">
+              <span aria-hidden className="text-faint">
                 →
               </span>
               {reason}

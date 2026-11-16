@@ -32,10 +32,10 @@ export function ResumeProfile({ profile, extracting, error, onEdit }: Props) {
     return (
       <section className="rail-section">
         <h2 className="rail-label">Profile</h2>
-        <p className="mt-3 flex items-center gap-2 text-[13px] text-ink-muted">
+        <p className="mt-3 flex items-center gap-2 text-[14px] tracking-caption text-ink-muted">
           <span
             aria-hidden
-            className="inline-block h-3.5 w-3.5 animate-spin rounded-full border-2 border-ink-line border-t-signal"
+            className="inline-block h-3.5 w-3.5 animate-spin rounded-full border-2 border-ink-line border-t-primary-dark"
           />
           Extracting your profile with the LLM...
         </p>
@@ -46,8 +46,8 @@ export function ResumeProfile({ profile, extracting, error, onEdit }: Props) {
   if (error) {
     return (
       <section className="rail-section">
-        <h2 className="rail-label text-oxide">Profile extraction failed</h2>
-        <p className="mt-2 rounded-control border border-oxide/40 bg-oxide/10 p-3 text-[12px] leading-relaxed text-oxide-line">
+        <h2 className="rail-label !text-alert-dark">Profile extraction failed</h2>
+        <p className="mt-2 text-[14px] leading-[1.43] tracking-caption text-alert-dark">
           {error}
         </p>
       </section>
@@ -149,14 +149,14 @@ export function ResumeProfile({ profile, extracting, error, onEdit }: Props) {
         <button
           type="button"
           onClick={startEditing}
-          className="font-mono text-[10px] uppercase tracking-[0.1em] text-ink-faint underline underline-offset-2 transition-colors hover:text-ink-text"
+          className="rail-link"
         >
           Edit profile
         </button>
       </div>
 
       {profile.name && (
-        <p className="mt-3 text-[14px] font-semibold tracking-tightest text-ink-text">
+        <p className="mt-3 text-[21px] font-semibold leading-[1.19] text-ink-text">
           {profile.name}
         </p>
       )}
@@ -169,7 +169,7 @@ export function ResumeProfile({ profile, extracting, error, onEdit }: Props) {
               ? profile.target_roles.map((role) => (
                   <span
                     key={role}
-                    className="rounded-[5px] bg-ink-raised px-1.5 py-0.5 font-mono text-[10px] text-ink-text"
+                    className="rounded-pill bg-ink-raised px-3 py-1 text-[12px] tracking-fine text-ink-text"
                   >
                     {role}
                   </span>
@@ -181,7 +181,7 @@ export function ResumeProfile({ profile, extracting, error, onEdit }: Props) {
         <div className="flex gap-6">
           <div>
             <dt className="rail-label">Experience</dt>
-            <dd data-testid="experience" className="mt-1 font-mono text-[12px] text-ink-text">
+            <dd data-testid="experience" className="mt-1 text-[14px] tracking-caption text-ink-text">
               {profile.years_experience !== null
                 ? `${profile.years_experience} year${profile.years_experience === 1 ? "" : "s"}`
                 : "—"}
@@ -191,7 +191,7 @@ export function ResumeProfile({ profile, extracting, error, onEdit }: Props) {
             <dt className="rail-label">Resume locations</dt>
             <dd
               data-testid="locations"
-              className="mt-1 truncate font-mono text-[12px] text-ink-text"
+              className="mt-1 truncate text-[14px] tracking-caption text-ink-text"
             >
               {profile.preferred_locations.length
                 ? profile.preferred_locations.join(" · ")
@@ -209,7 +209,7 @@ export function ResumeProfile({ profile, extracting, error, onEdit }: Props) {
             {allSkills.length ? (
               <>
                 <span
-                  className={`block font-mono text-[11px] leading-relaxed text-ink-muted ${
+                  className={`block text-[14px] leading-[1.43] tracking-caption text-ink-muted ${
                     showAllSkills ? "" : "line-clamp-2"
                   }`}
                 >
@@ -219,7 +219,7 @@ export function ResumeProfile({ profile, extracting, error, onEdit }: Props) {
                   <button
                     type="button"
                     onClick={() => setShowAllSkills((v) => !v)}
-                    className="mt-1 font-mono text-[10px] uppercase tracking-[0.1em] text-ink-faint underline underline-offset-2 transition-colors hover:text-ink-text"
+                    className="rail-link mt-1"
                   >
                     {showAllSkills ? "Show fewer" : "Show all"}
                   </button>

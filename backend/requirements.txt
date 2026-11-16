@@ -6,3 +6,4 @@ playwright>=1.45
 sqlalchemy[asyncio]>=2.0
 aiosqlite>=0.20
 alembic>=1.13
+pymupdf>=1.24

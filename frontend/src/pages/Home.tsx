@@ -14,11 +14,18 @@ import {
   type FilterState,
 } from "../components/JobFilters";
 import { JobDetails } from "../components/JobDetails";
+import { ResumeScore } from "../components/ResumeScore";
 
 import { useAppState } from "../storage/localStore";
-import { extractProfile, getSearch, startSearch, streamSearchProgress } from "../api/search";
+import {
+  extractProfile,
+  getSearch,
+  scoreResume,
+  startSearch,
+  streamSearchProgress,
+} from "../api/search";
 import { isRuledOut } from "../types/job";
-import type { CandidateProfile } from "../types/resume";
+import { levelForYears, type CandidateProfile, type ScoreLevel } from "../types/resume";
 import type { Company } from "../types/company";
 import type { JobResult, JobStateMap } from "../types/job";
 import type { LLMSettings, SearchStatus } from "../types/search";
@@ -34,6 +41,14 @@ export default function Home() {
 
   const [extracting, setExtracting] = useState(false);
   const [profileError, setProfileError] = useState<string | null>(null);
+
+  const [view, setView] = useState<"jobs" | "score">("jobs");
+  const [scoring, setScoring] = useState(false);
+  // Follows the extracted profile unless the user picks a level by hand.
+  const [levelOverride, setLevelOverride] = useState<ScoreLevel | null>(null);
+  const scoreLevel =
+    levelOverride ?? levelForYears(state.candidateProfile?.years_experience);
+  const [scoreError, setScoreError] = useState<string | null>(null);
 
   const [searchId, setSearchId] = useState<string | null>(null);
   const [searchStatus, setSearchStatus] = useState<SearchStatus | null>(null);
@@ -64,7 +79,9 @@ export default function Home() {
   // ---------------------------------------------------------------------
 
   async function handleResumeLoaded(latex: string) {
-    setState({ resumeLatex: latex });
+    // A new resume makes the old score a lie.
+    setState({ resumeLatex: latex, resumeScore: null });
+    setLevelOverride(null);
     setProfileError(null);
     setExtracting(true);
     try {
@@ -78,6 +95,22 @@ export default function Home() {
       setState({ candidateProfile: null });
     } finally {
       setExtracting(false);
+    }
+  }
+
+  async function handleScore() {
+    setScoreError(null);
+    setScoring(true);
+    try {
+      const score = await scoreResume(state.resumeLatex ?? "", scoreLevel, {
+        ...llmSettings,
+        api_key: apiKey || undefined,
+      });
+      setState({ resumeScore: score });
+    } catch (error) {
+      setScoreError(error instanceof Error ? error.message : "Scoring failed.");
+    } finally {
+      setScoring(false);
     }
   }
 
@@ -100,18 +133,23 @@ export default function Home() {
   // Search lifecycle
   // ---------------------------------------------------------------------
 
-  function validateBeforeSearch(): string[] {
+  function validateBeforeScore(): string[] {
     const reasons: string[] = [];
     if (!state.resumeLatex?.trim()) reasons.push("Load your resume first.");
-    if (!state.candidateProfile)
-      reasons.push("No candidate profile — load a resume so it can be analyzed.");
-    if (enabledCompanies.length === 0)
-      reasons.push("Enable at least one company.");
     if (!llmSettings.model.trim()) reasons.push("Set an LLM model.");
     if (!llmSettings.base_url.trim()) reasons.push("Set the LLM base URL.");
     if (llmSettings.provider === "openai-compatible" && !apiKey.trim()) {
       reasons.push("Enter your API key for the OpenAI-compatible provider.");
     }
+    return reasons;
+  }
+
+  function validateBeforeSearch(): string[] {
+    const reasons = validateBeforeScore();
+    if (state.resumeLatex?.trim() && !state.candidateProfile)
+      reasons.push("No candidate profile — load a resume so it can be analyzed.");
+    if (enabledCompanies.length === 0)
+      reasons.push("Enable at least one company.");
     return reasons;
   }
 
@@ -265,6 +303,33 @@ export default function Home() {
 
   return (
     <Layout
+      subnav={
+        <div role="tablist" className="flex items-center gap-5">
+          {(
+            [
+              ["jobs", "Find jobs"],
+              ["score", "Resume score"],
+            ] as const
+          ).map(([key, label]) => (
+            <button
+              key={key}
+              type="button"
+              role="tab"
+              aria-selected={view === key}
+              data-testid={`tab-${key}`}
+              onClick={() => setView(key)}
+              className={`whitespace-nowrap text-[14px] tracking-caption transition-colors ${
+                view === key ? "font-semibold text-ink" : "text-primary hover:underline"
+              }`}
+            >
+              {label}
+              {key === "score" && state.resumeScore && (
+                <span className="ml-1.5 text-faint">{state.resumeScore.total}</span>
+              )}
+            </button>
+          ))}
+        </div>
+      }
       rail={
         <>
           <ResumeUpload resumeLatex={state.resumeLatex} onLoaded={handleResumeLoaded} />
@@ -315,92 +380,113 @@ export default function Home() {
         </>
       }
     >
-      <SearchButton
-        disabledReasons={validateBeforeSearch()}
-        running={Boolean(running)}
-        freshness={state.freshness}
-        onFreshnessChange={(value) => setState({ freshness: value })}
-        onStart={handleStartSearch}
-      />
+      <header className="space-y-3 pb-4">
+        <h1 className="hero">{view === "score" ? "Resume score." : "Find jobs."}</h1>
+        <p className="max-w-2xl font-display text-[21px] leading-[1.38] text-body sm:text-[24px]">
+          {view === "score"
+            ? "How a recruiter's rubric reads your resume, at your level."
+            : "Ranked against your resume. Anything you're barred from, set aside."}
+        </p>
+      </header>
 
-      {(searchStatus || searchError) && (
-        <SearchProgress
-          state={searchStatus?.status ?? (searchError ? "failed" : null)}
-          companies={searchStatus?.companies ?? []}
-          error={
-            searchError ??
-            (searchStatus?.status === "failed" ? searchStatus.error ?? null : null)
-          }
+      {view === "score" ? (
+        <ResumeScore
+          level={scoreLevel}
+          onLevelChange={setLevelOverride}
+          score={state.resumeScore}
+          scoring={scoring}
+          error={scoreError}
+          disabledReasons={validateBeforeScore()}
+          onScore={handleScore}
         />
-      )}
-
-      {results && results.length > 0 && (
+      ) : (
         <>
-          <div className="flex items-baseline justify-between gap-4 pt-1">
-            <h2
-              className="text-[17px] font-semibold tracking-tightest text-ink"
-              data-testid="results-heading"
-            >
-              {visibleJobs.length} job{visibleJobs.length === 1 ? "" : "s"} worth
-              considering{running ? " so far" : ""}
-            </h2>
-            <span className="token shrink-0 text-faint">
-              {examinedCount} examined
-            </span>
-          </div>
-
-          <JobFilters
-            filters={filters}
-            companies={filterCompanies}
-            onChange={(patch) => setFilters({ ...filters, ...patch })}
+          <SearchButton
+            disabledReasons={validateBeforeSearch()}
+            running={Boolean(running)}
+            freshness={state.freshness}
+            onFreshnessChange={(value) => setState({ freshness: value })}
+            onStart={handleStartSearch}
           />
 
-          <JobList
-            jobs={visibleJobs}
-            jobStates={jobStates}
-            onSave={handleSave}
-            onIgnore={handleIgnore}
-            onOpenDetails={setDetailsJob}
-          />
+          {(searchStatus || searchError) && (
+            <SearchProgress
+              state={searchStatus?.status ?? (searchError ? "failed" : null)}
+              companies={searchStatus?.companies ?? []}
+              error={
+                searchError ??
+                (searchStatus?.status === "failed" ? searchStatus.error ?? null : null)
+              }
+            />
+          )}
 
-          {ruledOutJobs.length > 0 && (
-            <details data-testid="ruled-out" className="group">
-              <summary className="flex cursor-pointer items-center gap-2 rounded-card border border-edge bg-surface px-4 py-3 text-[13px] font-medium text-body transition-colors hover:border-faint">
-                <span
-                  aria-hidden
-                  className="font-mono text-[11px] text-oxide transition-transform group-open:rotate-90"
+          {results && results.length > 0 && (
+            <>
+              <div className="flex items-baseline justify-between gap-4 pt-6">
+                <h2
+                  className="text-[28px] font-semibold leading-[1.14] text-ink sm:text-[34px]"
+                  data-testid="results-heading"
                 >
-                  ▶
+                  {visibleJobs.length} job{visibleJobs.length === 1 ? "" : "s"} worth
+                  considering{running ? " so far" : ""}
+                </h2>
+                <span className="caption shrink-0 text-faint">
+                  {examinedCount} examined
                 </span>
-                {ruledOutJobs.length} ruled out by a stated requirement
-              </summary>
-              <p className="px-4 py-3 text-[12px] leading-relaxed text-faint">
-                Each of these states a hard bar your resume does not clear. Shown so you
-                can disagree — the posting is not always the whole truth.
-              </p>
+              </div>
+
+              <JobFilters
+                filters={filters}
+                companies={filterCompanies}
+                onChange={(patch) => setFilters({ ...filters, ...patch })}
+              />
+
               <JobList
-                jobs={ruledOutJobs}
+                jobs={visibleJobs}
                 jobStates={jobStates}
                 onSave={handleSave}
                 onIgnore={handleIgnore}
                 onOpenDetails={setDetailsJob}
               />
-            </details>
+
+              {ruledOutJobs.length > 0 && (
+                <details data-testid="ruled-out" className="group">
+                  <summary className="card flex cursor-pointer items-center gap-3 px-6 py-4 text-[17px] text-ink">
+                    <span
+                      aria-hidden
+                      className="text-[12px] text-alert transition-transform group-open:rotate-90"
+                    >
+                      ▶
+                    </span>
+                    {ruledOutJobs.length} ruled out by a stated requirement
+                  </summary>
+                  <p className="caption px-6 py-4 text-faint">
+                    Each of these states a hard bar your resume does not clear. Shown so you
+                    can disagree — the posting is not always the whole truth.
+                  </p>
+                  <JobList
+                    jobs={ruledOutJobs}
+                    jobStates={jobStates}
+                    onSave={handleSave}
+                    onIgnore={handleIgnore}
+                    onOpenDetails={setDetailsJob}
+                  />
+                </details>
+              )}
+            </>
+          )}
+
+          {!running && (results === null || results.length === 0) && !searchStatus && (
+            <div className="card px-6 py-20 text-center">
+              <p className="tagline text-ink">No search yet.</p>
+              <p className="mx-auto mt-3 max-w-md text-[17px] text-body">
+                Load your resume, import a company list and point the app at a model — then
+                run a search. Results appear here, ranked, with anything you are barred from
+                kept separately.
+              </p>
+            </div>
           )}
         </>
-      )}
-
-      {!running && (results === null || results.length === 0) && !searchStatus && (
-        <div className="rounded-card border border-dashed border-edge bg-surface px-6 py-16 text-center">
-          <p className="text-[15px] font-semibold tracking-tightest text-ink">
-            No search yet
-          </p>
-          <p className="mx-auto mt-2 max-w-sm text-[13px] leading-relaxed text-body">
-            Load your resume, import a company list and point the app at a model — then
-            run a search. Results appear here, ranked, with anything you are barred from
-            kept separately.
-          </p>
-        </div>
       )}
 
       <JobDetails

@@ -16,8 +16,8 @@ const GLYPH: Record<CompanyProgress["status"], string> = {
 const TONE: Record<CompanyProgress["status"], string> = {
   pending: "text-faint",
   running: "text-ink",
-  completed: "text-signal",
-  failed: "text-oxide",
+  completed: "text-primary",
+  failed: "text-alert",
 };
 
 const HEADING: Record<SearchState, string> = {
@@ -41,46 +41,46 @@ export function SearchProgress({ state, companies, error }: Props) {
       data-testid="search-progress"
       className="card overflow-hidden"
     >
-      <div className="flex items-center justify-between border-b border-edge px-4 py-3">
-        <h2 className="flex items-center gap-2 text-[13px] font-semibold tracking-tight text-ink">
+      <div className="flex items-center justify-between border-b border-divider px-6 py-4">
+        <h2 className="flex items-center gap-2.5 text-[17px] font-semibold text-ink">
           {state === "running" && (
             <span
               aria-hidden
-              className="inline-block h-3 w-3 animate-spin rounded-full border-2 border-edge border-t-signal"
+              className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-edge border-t-primary"
             />
           )}
           {HEADING[state] ?? "Search failed"}
         </h2>
         {companies.length > 0 && (
-          <span className="token text-faint">
+          <span className="caption text-faint">
             {settled}/{companies.length} sites
           </span>
         )}
       </div>
 
       {state === "queued" && (
-        <p className="px-4 py-3 text-[12px] text-body">
+        <p className="caption px-6 py-4 text-body">
           Waiting for a free search slot...
         </p>
       )}
 
       {error && (
-        <p className="border-b border-oxide-line bg-oxide-soft px-4 py-3 text-[13px] leading-relaxed text-oxide">
+        <p className="caption border-b border-alert-line bg-alert-soft px-6 py-4 text-alert">
           {error}
         </p>
       )}
 
       {companies.length > 0 && (
-        <ul className="divide-y divide-edge">
+        <ul className="divide-y divide-divider">
           {companies.map((progress) => (
             <li
               key={progress.company}
               data-testid={`company-progress-${progress.company}`}
-              className="flex gap-3 px-4 py-2.5"
+              className="flex gap-3 px-6 py-3"
             >
               <span
                 aria-hidden
-                className={`mt-px w-3 shrink-0 text-center font-mono text-[12px] ${TONE[progress.status]} ${
+                className={`mt-0.5 w-3 shrink-0 text-center text-[14px] ${TONE[progress.status]} ${
                   progress.status === "running" ? "animate-pulse" : ""
                 }`}
               >
@@ -89,20 +89,20 @@ export function SearchProgress({ state, companies, error }: Props) {
               <div className="min-w-0 flex-1">
                 <div className="flex items-baseline justify-between gap-3">
                   <span
-                    className={`truncate text-[13px] font-medium ${
+                    className={`truncate text-[14px] font-semibold tracking-caption ${
                       progress.status === "pending" ? "text-faint" : "text-ink"
                     }`}
                   >
                     {progress.company}
                   </span>
                   {progress.status === "completed" && (
-                    <span className="shrink-0 font-mono text-[11px] text-signal">
+                    <span className="caption shrink-0 text-primary">
                       {progress.jobs_found ?? 0} kept
                     </span>
                   )}
                 </div>
                 <div
-                  className="truncate font-mono text-[11px] text-faint"
+                  className="token truncate text-faint"
                   data-testid={`company-detail-${progress.company}`}
                 >
                   {progress.status === "completed" && (

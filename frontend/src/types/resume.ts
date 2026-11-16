@@ -54,3 +54,36 @@ export function emptyProfile(): CandidateProfile {
     preferred_locations: [],
   };
 }
+
+export type ScoreLevel = "junior" | "mid" | "senior";
+
+export const SCORE_LEVEL_LABELS: Record<ScoreLevel, string> = {
+  junior: "0–1 yrs",
+  mid: "2–5 yrs",
+  senior: "5+ yrs",
+};
+
+/** 0-1 years -> junior, 2-5 -> mid, more than 5 -> senior. Unknown -> junior. */
+export function levelForYears(years: number | null | undefined): ScoreLevel {
+  if (years == null || years <= 1) return "junior";
+  return years <= 5 ? "mid" : "senior";
+}
+
+/** Rubric score from POST /api/score (ported from hiring-agent). */
+export interface ResumeScore {
+  level: ScoreLevel;
+  total: number;
+  base_max: number;
+  categories: { key: string; label: string; score: number; max: number; evidence: string }[];
+  bonus: { total: number; breakdown: string };
+  deductions: { total: number; reasons: string };
+  key_strengths: string[];
+  areas_for_improvement: string[];
+  github: {
+    username: string;
+    name: string | null;
+    avatar_url: string | null;
+    public_repos: number | null;
+    followers: number | null;
+  } | null;
+}

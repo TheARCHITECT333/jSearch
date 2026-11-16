@@ -110,7 +110,7 @@ describe("JobCard", () => {
         onOpenDetails={vi.fn()}
       />
     );
-    expect(screen.getByTestId("match-score").className).not.toContain("signal");
+    expect(screen.getByTestId("match-score").className).not.toContain("text-primary");
   });
 
   it("keeps an eligible job free of a disqualifier block", () => {

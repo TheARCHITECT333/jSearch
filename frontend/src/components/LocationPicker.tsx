@@ -38,7 +38,7 @@ export function LocationPicker({ locations, onChange }: Props) {
       <div className="flex items-center justify-between">
         <h2 className="rail-label">Locations</h2>
         <span
-          className={`token ${locations.length === 0 ? "text-ink-faint" : "text-signal"}`}
+          className={`token ${locations.length === 0 ? "text-ink-faint" : "text-primary-dark"}`}
           data-testid="location-mode"
         >
           {locations.length === 0
@@ -47,19 +47,19 @@ export function LocationPicker({ locations, onChange }: Props) {
         </span>
       </div>
 
-      <div className="mt-3 flex flex-wrap items-center gap-1.5 rounded-control border border-ink-line bg-ink p-1.5 transition-colors focus-within:border-signal">
+      <div className="mt-3 flex flex-wrap items-center gap-1.5 rounded-lg border border-white/[0.12] bg-ink-deep p-2 transition-colors focus-within:border-primary-dark">
         {locations.map((loc) => (
           <span
             key={loc}
             data-testid={`location-chip-${loc.toLowerCase().replace(/\s+/g, "-")}`}
-            className="inline-flex items-center gap-1.5 rounded-[5px] bg-ink-raised px-2 py-1 font-mono text-[11px] text-ink-text"
+            className="inline-flex items-center gap-1.5 rounded-pill bg-ink-raised px-3 py-1 text-[12px] tracking-fine text-ink-text"
           >
             {loc}
             <button
               type="button"
               aria-label={`Remove ${loc}`}
               onClick={() => onChange(locations.filter((l) => l !== loc))}
-              className="text-ink-faint transition-colors hover:text-oxide"
+              className="text-ink-faint transition-colors hover:text-alert-dark"
             >
               ✕
             </button>
@@ -75,11 +75,11 @@ export function LocationPicker({ locations, onChange }: Props) {
             locations.length === 0 ? "e.g. Bangalore, Remote — press Enter to add" : "Add another..."
           }
           aria-label="Add a target location"
-          className="min-w-[8rem] flex-1 bg-transparent px-1 py-1 font-mono text-[12px] text-ink-text placeholder:text-ink-faint/70 focus:outline-none"
+          className="min-w-[8rem] flex-1 bg-transparent px-2 py-1 text-[14px] tracking-caption text-ink-text placeholder:text-ink-faint focus:outline-none"
         />
       </div>
 
-      <p className="mt-2 text-[11px] leading-relaxed text-ink-faint">
+      <p className="mt-3 text-[12px] leading-[1.5] tracking-fine text-ink-faint">
         Postings clearly located elsewhere are dropped before matching. Remote always
         fits. Empty searches everywhere.
       </p>

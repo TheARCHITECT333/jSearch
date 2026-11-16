@@ -223,6 +223,11 @@ class ProfileRequest(BaseModel):
     llm: Optional[LLMConfig] = None
 
 
+class ScoreRequest(ProfileRequest):
+    # 0-1 years -> junior, 2-5 -> mid, more than 5 -> senior.
+    level: Literal["junior", "mid", "senior"] = "junior"
+
+
 class ProfileResponse(BaseModel):
     profile: CandidateProfile
 

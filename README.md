@@ -48,12 +48,13 @@ docker compose up --build
 
 Open **http://localhost:3000**.
 
-1. **Resume** — click *Upload resume.tex* (or *Paste LaTeX*). The backend extracts a candidate profile using your configured LLM.
+1. **Resume** — click *Upload .tex or .pdf* (or *Paste LaTeX*). The backend extracts a candidate profile using your configured LLM.
 2. **Companies** — copy `companies.example.json`, edit to taste, import via the UI. Toggle companies on/off freely.
 3. **LLM settings** — configure an Ollama server (base URL + model) or any OpenAI-compatible API. API keys stay in memory only — never stored.
 4. **Locations** — add target locations (e.g. *Bangalore*, *Remote*) for pre-filtering.
 5. **Posted within** — select a freshness window to skip stale jobs.
 6. **Find jobs** — watch live per-company progress.
+7. **Resume score** (second tab) — rates the resume on open source, projects, production experience and skills, with evidence, bonuses and deductions. If the resume links a GitHub profile, its public repos are read too (set `GITHUB_TOKEN` on the backend to lift GitHub's 60 req/h anonymous limit).
 
 ## Fit vs. eligibility
 
@@ -80,6 +81,7 @@ Key knobs:
 | `DISCOVERY_ATTEMPTS` | 2 | Discovery tries per company |
 | `AGENT_MAX_STEPS` | 30 | Total actions per site |
 | `AGENT_MAX_JOB_VISITS` | 12 | Job detail pages per site |
+| `GITHUB_TOKEN` | — | Optional; raises GitHub API limit for resume scoring |
 
 The search budget scales with company count: `rounds * per-company cap`, floored at `SEARCH_TIMEOUT_S`. Raising `SEARCH_TIMEOUT_S` is rarely needed — the real knob for long lists is `LLM_CONCURRENCY` if your model server supports parallel requests.
 

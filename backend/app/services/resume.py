@@ -10,8 +10,8 @@ from ..schemas import CandidateProfile
 logger = logging.getLogger(__name__)
 
 PROFILE_SYSTEM_PROMPT = """\
-You are a precise resume-parsing assistant. You receive the LaTeX source of a \
-resume and must extract a structured candidate profile as JSON.
+You are a precise resume-parsing assistant. You receive a resume as LaTeX \
+source or as plain text extracted from a PDF, and must extract a structured candidate profile as JSON.
 
 Rules:
 - Output ONLY one JSON object. No prose, no markdown fences.
@@ -47,7 +47,7 @@ async def extract_profile(llm: LLM, resume_latex: str) -> CandidateProfile:
     latex = resume_latex.strip()
     if len(latex) < 40:
         raise ResumeExtractionError(
-            "The resume content looks too short to parse. Upload a complete .tex file."
+            "The resume content looks too short to parse. Upload a complete .tex or .pdf file."
         )
 
     try:

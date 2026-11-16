@@ -9,7 +9,10 @@ ENV PYTHONUNBUFFERED=1 \
 WORKDIR /app
 
 COPY requirements.txt .
-RUN pip install -r requirements.txt \
+# libatomic1: Playwright's bundled Node needs it, and -slim doesn't ship it.
+RUN apt-get update && apt-get install -y --no-install-recommends libatomic1 \
+    && rm -rf /var/lib/apt/lists/* \
+    && pip install -r requirements.txt \
     && playwright install --with-deps chromium
 
 COPY app ./app

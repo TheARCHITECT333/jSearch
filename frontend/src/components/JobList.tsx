@@ -14,10 +14,10 @@ export function JobList({ jobs, jobStates, onSave, onIgnore, onOpenDetails }: Pr
     return (
       <div
         data-testid="empty-results"
-        className="rounded-card border border-dashed border-edge bg-surface px-6 py-12 text-center"
+        className="card px-6 py-14 text-center"
       >
-        <p className="text-[14px] font-medium text-ink">Nothing matches these filters.</p>
-        <p className="mt-1 text-[13px] text-faint">
+        <p className="text-[17px] font-semibold text-ink">Nothing matches these filters.</p>
+        <p className="caption mt-1 text-faint">
           Lower the minimum score or clear the company filter to see more.
         </p>
       </div>
@@ -25,11 +25,11 @@ export function JobList({ jobs, jobStates, onSave, onIgnore, onOpenDetails }: Pr
   }
 
   return (
-    <div className="grid gap-3">
+    <div className="grid gap-4">
       {jobs.map((job, index) => (
         <div
           key={job.job_url}
-          className="rise"
+          className="rise min-w-0"
           // A long list lands as one block otherwise; a short stagger lets
           // the eye follow it down. Capped so job 40 is not a second late.
           style={{ animationDelay: `${Math.min(index, 8) * 35}ms` }}

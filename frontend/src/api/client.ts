@@ -46,3 +46,12 @@ export function apiGet<T>(path: string): Promise<T> {
 export function apiPost<T>(path: string, body: unknown): Promise<T> {
   return request<T>(path, { method: "POST", body: JSON.stringify(body) });
 }
+
+/** Send a file as the raw request body (no multipart parsing needed server-side). */
+export function apiPostFile<T>(path: string, file: Blob): Promise<T> {
+  return request<T>(path, {
+    method: "POST",
+    body: file,
+    headers: { "Content-Type": file.type || "application/octet-stream" },
+  });
+}

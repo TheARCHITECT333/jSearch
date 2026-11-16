@@ -1,4 +1,5 @@
 import { useRef, useState } from "react";
+import { pdfToText } from "../api/search";
 
 interface Props {
   resumeLatex: string | null;
@@ -10,12 +11,24 @@ export function ResumeUpload({ resumeLatex, onLoaded }: Props) {
   const [pasteOpen, setPasteOpen] = useState(false);
   const [pasteText, setPasteText] = useState("");
   const [viewSource, setViewSource] = useState(false);
+  const [reading, setReading] = useState(false);
+  const [readError, setReadError] = useState<string | null>(null);
 
   async function handleFile(file: File | undefined | null) {
     if (!file) return;
-    const text = await file.text();
-    onLoaded(text);
-    setViewSource(false);
+    setReadError(null);
+    setReading(true);
+    try {
+      const isPdf = file.type === "application/pdf" || /\.pdf$/i.test(file.name);
+      const text = isPdf ? await pdfToText(file) : await file.text();
+      onLoaded(text);
+      setViewSource(false);
+    } catch (error) {
+      setReadError(error instanceof Error ? error.message : "Could not read file.");
+    } finally {
+      setReading(false);
+      if (fileInput.current) fileInput.current.value = "";
+    }
   }
 
   return (
@@ -23,7 +36,7 @@ export function ResumeUpload({ resumeLatex, onLoaded }: Props) {
       <div className="flex items-center justify-between">
         <h2 className="rail-label">Resume</h2>
         {resumeLatex ? (
-          <span className="token text-signal">Resume loaded ✓</span>
+          <span className="token text-primary-dark">Resume loaded ✓</span>
         ) : (
           <span className="token text-ink-faint">Required</span>
         )}
@@ -33,7 +46,7 @@ export function ResumeUpload({ resumeLatex, onLoaded }: Props) {
         <input
           ref={fileInput}
           type="file"
-          accept=".tex,.txt,text/plain"
+          accept=".tex,.txt,.pdf,text/plain,application/pdf"
           className="hidden"
           onChange={(e) => handleFile(e.target.files?.[0])}
         />
@@ -41,9 +54,10 @@ export function ResumeUpload({ resumeLatex, onLoaded }: Props) {
           type="button"
           data-testid="upload-button"
           onClick={() => fileInput.current?.click()}
+          disabled={reading}
           className="btn-rail-primary"
         >
-          Upload resume.tex
+          {reading ? "Reading PDF..." : "Upload .tex or .pdf"}
         </button>
         <button
           type="button"
@@ -55,6 +69,12 @@ export function ResumeUpload({ resumeLatex, onLoaded }: Props) {
         </button>
       </div>
 
+      {readError && (
+        <p role="alert" className="mt-3 text-[14px] tracking-caption text-alert-dark">
+          {readError}
+        </p>
+      )}
+
       {pasteOpen && (
         <div className="mt-3" data-testid="paste-area">
           <textarea
@@ -63,7 +83,7 @@ export function ResumeUpload({ resumeLatex, onLoaded }: Props) {
             onChange={(e) => setPasteText(e.target.value)}
             rows={8}
             placeholder={"\\documentclass{article}\n\\begin{document}...\n\\end{document}"}
-            className="field resize-y text-[12px] leading-relaxed"
+            className="field !rounded-lg resize-y font-mono !text-[12px] leading-relaxed"
           />
           <button
             type="button"
@@ -85,16 +105,16 @@ export function ResumeUpload({ resumeLatex, onLoaded }: Props) {
         <button
           type="button"
           onClick={() => setViewSource((v) => !v)}
-          className="mt-3 font-mono text-[11px] text-ink-faint underline underline-offset-2 transition-colors hover:text-ink-muted"
+          className="rail-link mt-4"
         >
-          {viewSource ? "Hide source" : "View LaTeX source"}
+          {viewSource ? "Hide source" : "View resume source"}
         </button>
       )}
 
       {resumeLatex && viewSource && (
         <pre
           data-testid="latex-source"
-          className="mt-2 max-h-56 overflow-auto rounded-control border border-ink-line bg-ink p-3 font-mono text-[11px] leading-relaxed text-ink-muted whitespace-pre-wrap"
+          className="mt-2 max-h-56 overflow-auto whitespace-pre-wrap rounded-lg bg-ink-deep p-4 font-mono text-[11px] leading-relaxed text-ink-muted"
         >
           {resumeLatex}
         </pre>

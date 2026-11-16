@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it } from "vitest";
 import { renderHook, act } from "@testing-library/react";
 import { store, useAppState } from "../src/storage/localStore";
+import { levelForYears } from "../src/types/resume";
 
 describe("localStore", () => {
   beforeEach(() => window.localStorage.clear());
@@ -58,5 +59,13 @@ describe("localStore", () => {
     window.localStorage.setItem("jobhunter.latestResults", "{not json");
     const { result } = renderHook(() => useAppState());
     expect(result.current[0].latestResults).toEqual([]);
+  });
+});
+
+describe("levelForYears", () => {
+  it("maps years of experience to a scoring level", () => {
+    expect([null, 0, 1, 2, 5, 6, 12].map(levelForYears)).toEqual([
+      "junior", "junior", "junior", "mid", "mid", "senior", "senior",
+    ]);
   });
 });

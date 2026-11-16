@@ -8,13 +8,14 @@
 
 import { useSyncExternalStore } from "react";
 import type { Company } from "../types/company";
-import type { CandidateProfile } from "../types/resume";
+import type { CandidateProfile, ResumeScore } from "../types/resume";
 import type { JobResult, JobStateMap } from "../types/job";
 import type { Freshness, LLMProvider } from "../types/search";
 
 const KEYS = {
   resumeLatex: "jobhunter.resumeLatex",
   candidateProfile: "jobhunter.candidateProfile",
+  resumeScore: "jobhunter.resumeScore",
   companies: "jobhunter.companies",
   companyEnabled: "jobhunter.companyEnabled",
   llmProvider: "jobhunter.llmProvider",
@@ -30,6 +31,7 @@ const KEYS = {
 export interface AppState {
   resumeLatex: string | null;
   candidateProfile: CandidateProfile | null;
+  resumeScore: ResumeScore | null;
   companies: Company[];
   companyEnabled: Record<string, boolean>;
   llmProvider: LLMProvider;
@@ -56,6 +58,7 @@ function readState(): AppState {
   return {
     resumeLatex: load<string | null>(KEYS.resumeLatex, null),
     candidateProfile: load<CandidateProfile | null>(KEYS.candidateProfile, null),
+    resumeScore: load<ResumeScore | null>(KEYS.resumeScore, null),
     companies: load<Company[]>(KEYS.companies, []),
     companyEnabled: load<Record<string, boolean>>(KEYS.companyEnabled, {}),
     llmProvider: load<LLMProvider>(KEYS.llmProvider, "ollama"),
@@ -82,6 +85,7 @@ function persist(state: AppState): void {
   };
   put(KEYS.resumeLatex, state.resumeLatex);
   put(KEYS.candidateProfile, state.candidateProfile);
+  put(KEYS.resumeScore, state.resumeScore);
   put(KEYS.companies, state.companies);
   put(KEYS.companyEnabled, state.companyEnabled);
   put(KEYS.llmProvider, state.llmProvider);

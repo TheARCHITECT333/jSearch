@@ -48,7 +48,7 @@ describe("ResumeUpload", () => {
 
     expect(screen.getByText("Resume loaded ✓")).toBeInTheDocument();
 
-    await user.click(screen.getByText(/View LaTeX source/));
+    await user.click(screen.getByText(/View resume source/));
     expect(screen.getByTestId("latex-source")).toHaveTextContent(/documentclass/);
   });
 });

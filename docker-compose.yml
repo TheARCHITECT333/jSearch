@@ -4,7 +4,7 @@ services:
       context: ./backend
       dockerfile: Dockerfile
     ports:
-      - "8000:8000"
+      - "${BACKEND_PORT:-8000}:8000"
     environment:
       - LOG_LEVEL=INFO
       # `json` for one object per line if you ship these somewhere.
@@ -12,6 +12,8 @@ services:
       # Embedded SQLite history (swap to Postgres by changing this URL).
       - DATABASE_URL=sqlite:////data/jobhunter.db
       - SEEN_JOB_TTL_DAYS=7
+      # Optional, for resume scoring: picked up from .env if set.
+      - GITHUB_TOKEN=${GITHUB_TOKEN:-}
     volumes:
       - jobhunter-data:/data
     healthcheck:
@@ -29,7 +31,7 @@ services:
       context: ./frontend
       dockerfile: Dockerfile
     ports:
-      - "3000:3000"
+      - "${FRONTEND_PORT:-3000}:3000"
     environment:
       - BACKEND_ORIGIN=http://backend:8000
     depends_on:

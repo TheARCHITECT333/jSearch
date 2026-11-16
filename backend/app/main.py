@@ -36,10 +36,12 @@ from .schemas import (
     LLMConfig,
     ProfileRequest,
     ProfileResponse,
+    ScoreRequest,
     SearchRequest,
     StartSearchResponse,
 )
 from .services.resume import ResumeExtractionError, extract_profile
+from .services.scoring import score_resume
 from .services.search import SearchQueueFullError
 from .services import search as search_service
 
@@ -207,6 +209,55 @@ async def create_profile(request: ProfileRequest) -> ProfileResponse:
     finally:
         await llm.close()
     return ProfileResponse(profile=profile)
+
+
+MAX_PDF_BYTES = 10 * 1024 * 1024
+
+
+@app.post("/api/resume/pdf")
+async def resume_pdf_to_text(request: Request) -> dict:
+    """Raw PDF body in, plain text out. The UI then treats it like a .tex.
+
+    Link targets are appended because resumes often hide the GitHub URL
+    behind an icon - and scoring needs it.
+    """
+    import pymupdf
+
+    data = await request.body()
+    if not data:
+        raise HTTPException(status_code=400, detail="The uploaded file is empty.")
+    if len(data) > MAX_PDF_BYTES:
+        raise HTTPException(status_code=413, detail="PDF is larger than 10 MB.")
+    try:
+        with pymupdf.open(stream=data, filetype="pdf") as doc:
+            text = "\n".join(page.get_text() for page in doc)
+            links = {l["uri"] for page in doc for l in page.get_links() if l.get("uri")}
+    except Exception as exc:  # noqa: BLE001 - any parse failure is the user's file
+        raise HTTPException(status_code=422, detail="Could not read this PDF.") from exc
+    if links:
+        text += "\n\nLinks:\n" + "\n".join(sorted(links))
+    if len(text.strip()) < 40:
+        raise HTTPException(
+            status_code=422,
+            detail="No readable text in this PDF (scanned image?). Try the LaTeX source.",
+        )
+    return {"text": text}
+
+
+@app.post("/api/score")
+async def score(request: ScoreRequest) -> dict:
+    llm_config = _require_llm_config(request.llm)
+    try:
+        llm = build_llm(llm_config)
+    except ValueError as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
+    try:
+        return await score_resume(llm, request.resume_latex, request.level)
+    except LLMError as exc:
+        logger.exception("score endpoint failure")
+        raise HTTPException(status_code=502, detail=str(exc)) from exc
+    finally:
+        await llm.close()
 
 
 @app.post("/api/search", response_model=StartSearchResponse)

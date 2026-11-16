@@ -13,9 +13,9 @@ function ScoreRow({ label, value }: { label: string; value: number }) {
   return (
     <div>
       <div className="flex items-baseline justify-between">
-        <span className="eyebrow text-faint">{label}</span>
+        <span className="token text-faint">{label}</span>
         <span
-          className="font-mono text-[12px] font-medium text-ink"
+          className="text-[14px] font-semibold tracking-caption text-ink"
           data-testid={`score-${label.toLowerCase().replace(" ", "-")}`}
         >
           {value}%
@@ -34,7 +34,7 @@ function ScoreRow({ label, value }: { label: string; value: number }) {
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <div>
-      <h3 className="eyebrow text-faint">{title}</h3>
+      <h3 className="text-[17px] font-semibold text-ink">{title}</h3>
       <div className="mt-2">{children}</div>
     </div>
   );
@@ -61,20 +61,20 @@ export function JobDetails({ job, jobStates, onClose, onSave, onIgnore }: Props)
       <div
         aria-hidden
         onClick={onClose}
-        className="fixed inset-0 z-40 bg-ink/40 backdrop-blur-[2px]"
+        className="frosted fixed inset-0 z-40 !mt-0 bg-black/30"
       />
       <aside
         role="dialog"
         aria-label={`Job details: ${job.job_title}`}
         data-testid="job-details"
-        className="fixed inset-y-0 right-0 z-50 flex w-full max-w-xl flex-col bg-paper shadow-2xl"
+        className="fixed inset-y-0 right-0 z-50 !mt-0 flex w-full max-w-xl flex-col bg-paper"
       >
-        <header className="flex items-start justify-between gap-4 border-b border-edge bg-surface px-5 py-4">
+        <header className="flex items-start justify-between gap-4 bg-surface px-6 py-5">
           <div className="min-w-0">
-            <h2 className="text-[18px] font-semibold tracking-tightest text-ink">
+            <h2 className="text-[28px] font-semibold leading-[1.14] text-ink">
               {job.job_title}
             </h2>
-            <p className="mt-0.5 font-mono text-[11px] text-faint">
+            <p className="caption mt-1 text-faint">
               {job.company}
               {job.location ? ` · ${job.location}` : ""}
               {job.employment_type ? ` · ${job.employment_type}` : ""}
@@ -85,55 +85,56 @@ export function JobDetails({ job, jobStates, onClose, onSave, onIgnore }: Props)
             aria-label="Close details"
             data-testid="close-details"
             onClick={onClose}
-            className="shrink-0 rounded-control border border-edge px-2 py-1 font-mono text-[12px] text-faint transition-colors hover:border-faint hover:text-ink"
+            title="Close (Esc)"
+            className="btn-icon"
           >
-            Esc
+            <span aria-hidden>✕</span>
           </button>
         </header>
 
-        <div className="flex-1 space-y-5 overflow-y-auto px-5 py-5">
+        <div className="flex-1 space-y-8 overflow-y-auto px-6 py-6">
           {ruledOut && (
-            <div className="rounded-card border border-oxide-line bg-oxide-soft p-4">
-              <h3 className="eyebrow text-oxide">Ruled out by the posting</h3>
+            <div className="rounded-lg border border-alert-line bg-alert-soft p-6">
+              <h3 className="text-[17px] font-semibold text-alert">Ruled out by the posting</h3>
               <ul className="mt-2 space-y-1.5">
                 {job.match.disqualifiers.map((reason) => (
-                  <li key={reason} className="flex gap-2 text-[13px] leading-snug text-oxide">
-                    <span aria-hidden className="font-mono">
+                  <li key={reason} className="caption flex gap-2 text-alert">
+                    <span aria-hidden>
                       ✕
                     </span>
                     {reason}
                   </li>
                 ))}
               </ul>
-              <p className="mt-3 text-[12px] leading-relaxed text-oxide/80">
+              <p className="caption mt-3 text-alert/80">
                 Postings overstate their requirements often enough to be worth a look
                 anyway. This is a flag, not a lock.
               </p>
             </div>
           )}
 
-          <div className="card p-4">
+          <div className="card p-6">
             <div className="flex items-end justify-between">
               <div>
                 <span
-                  className={`font-mono text-[38px] font-semibold leading-none tracking-tight ${
-                    ruledOut ? "text-faint" : "text-signal"
+                  className={`font-display text-[56px] font-semibold leading-none tracking-hero ${
+                    ruledOut ? "text-faint" : "text-primary"
                   }`}
                   data-testid="details-overall-score"
                 >
                   {job.match.overall_score}%
                 </span>
-                <p className="eyebrow mt-1.5 text-faint">Overall fit</p>
+                <p className="token mt-2 text-faint">Overall fit</p>
               </div>
               <div className="text-right">
-                <span className="font-mono text-[20px] font-semibold leading-none text-ink">
+                <span className="font-display text-[34px] font-semibold leading-none text-ink">
                   {job.match.keyword_coverage > 0 ? `${job.match.keyword_coverage}%` : "—"}
                 </span>
-                <p className="eyebrow mt-1.5 text-faint">Keywords verbatim</p>
+                <p className="token mt-2 text-faint">Keywords verbatim</p>
               </div>
             </div>
 
-            <div className="mt-5 grid gap-3 sm:grid-cols-2">
+            <div className="mt-6 grid gap-4 sm:grid-cols-2">
               <ScoreRow label="Role fit" value={job.match.role_fit} />
               <ScoreRow label="Skill fit" value={job.match.skill_fit} />
               <ScoreRow label="Experience fit" value={job.match.experience_fit} />
@@ -141,7 +142,7 @@ export function JobDetails({ job, jobStates, onClose, onSave, onIgnore }: Props)
             </div>
 
             {job.match.seniority_band && (
-              <p className="mt-4 border-t border-edge pt-3 font-mono text-[11px] text-faint">
+              <p className="token mt-5 border-t border-divider pt-4 text-faint">
                 Written for {job.match.seniority_band} level
                 {job.match.required_years !== null &&
                 job.match.required_years !== undefined
@@ -152,37 +153,37 @@ export function JobDetails({ job, jobStates, onClose, onSave, onIgnore }: Props)
           </div>
 
           {job.match.reason && (
-            <p className="text-[14px] leading-relaxed text-body">{job.match.reason}</p>
+            <p className="text-[17px] text-body">{job.match.reason}</p>
           )}
 
-          <div className="grid gap-5 sm:grid-cols-2">
+          <div className="grid gap-8 sm:grid-cols-2">
             <Section title="Matching skills">
-              <ul className="flex flex-wrap gap-1">
+              <ul className="flex flex-wrap gap-1.5">
                 {job.match.matching_skills.map((skill) => (
                   <li
                     key={skill}
-                    className="rounded-[5px] bg-signal-soft px-1.5 py-0.5 font-mono text-[10px] text-signal"
+                    className="chip"
                   >
                     {skill}
                   </li>
                 ))}
                 {job.match.matching_skills.length === 0 && (
-                  <li className="text-[13px] text-faint">None listed</li>
+                  <li className="caption text-faint">None listed</li>
                 )}
               </ul>
             </Section>
             <Section title="Missing skills">
-              <ul className="flex flex-wrap gap-1">
+              <ul className="flex flex-wrap gap-1.5">
                 {job.match.missing_skills.map((skill) => (
                   <li
                     key={skill}
-                    className="rounded-[5px] border border-edge px-1.5 py-0.5 font-mono text-[10px] text-faint line-through"
+                    className="chip-muted line-through"
                   >
                     {skill}
                   </li>
                 ))}
                 {job.match.missing_skills.length === 0 && (
-                  <li className="text-[13px] text-faint">Nothing important missing</li>
+                  <li className="caption text-faint">Nothing important missing</li>
                 )}
               </ul>
             </Section>
@@ -190,17 +191,17 @@ export function JobDetails({ job, jobStates, onClose, onSave, onIgnore }: Props)
 
           {job.match.missing_keywords.length > 0 && (
             <Section title="In the posting, not in your resume">
-              <ul className="flex flex-wrap gap-1">
+              <ul className="flex flex-wrap gap-1.5">
                 {job.match.missing_keywords.map((word) => (
                   <li
                     key={word}
-                    className="rounded-[5px] border border-edge px-1.5 py-0.5 font-mono text-[10px] text-body"
+                    className="chip-muted !text-body"
                   >
                     {word}
                   </li>
                 ))}
               </ul>
-              <p className="mt-2 text-[12px] leading-relaxed text-faint">
+              <p className="caption mt-3 text-faint">
                 A recruiter's search matches these literally. Worth adding wherever
                 they are honestly true of your work.
               </p>
@@ -211,8 +212,8 @@ export function JobDetails({ job, jobStates, onClose, onSave, onIgnore }: Props)
             <Section title="Requirements">
               <ul className="space-y-1.5">
                 {job.requirements.map((req, index) => (
-                  <li key={index} className="flex gap-2 text-[13px] leading-relaxed text-body">
-                    <span aria-hidden className="font-mono text-faint">
+                  <li key={index} className="caption flex gap-2 text-body">
+                    <span aria-hidden className="text-faint">
                       —
                     </span>
                     {req}
@@ -226,8 +227,8 @@ export function JobDetails({ job, jobStates, onClose, onSave, onIgnore }: Props)
             <Section title="Preferred (not required)">
               <ul className="space-y-1.5">
                 {job.preferred_qualifications.map((qual, index) => (
-                  <li key={index} className="flex gap-2 text-[13px] leading-relaxed text-body">
-                    <span aria-hidden className="font-mono text-faint">
+                  <li key={index} className="caption flex gap-2 text-body">
+                    <span aria-hidden className="text-faint">
                       —
                     </span>
                     {qual}
@@ -238,22 +239,18 @@ export function JobDetails({ job, jobStates, onClose, onSave, onIgnore }: Props)
           )}
 
           <Section title="Description">
-            <p className="whitespace-pre-wrap text-[13px] leading-relaxed text-body">
+            <p className="caption whitespace-pre-wrap text-body">
               {job.description || "No description captured."}
             </p>
           </Section>
         </div>
 
-        <footer className="flex items-center gap-2 border-t border-edge bg-surface px-5 py-3">
+        <footer className="frosted flex items-center gap-2 border-t border-black/[0.08] bg-paper/80 px-6 py-3">
           <button
             type="button"
             data-testid="details-save"
             onClick={() => onSave(job.job_url)}
-            className={`rounded-control border px-3 py-1.5 text-[13px] font-medium transition-colors ${
-              state === "saved"
-                ? "border-signal-line bg-signal-soft text-signal"
-                : "border-edge text-body hover:border-faint hover:text-ink"
-            }`}
+            className={`btn ${state === "saved" ? "btn-selected" : ""}`}
           >
             {state === "saved" ? "Saved ✓" : "Save"}
           </button>
@@ -261,7 +258,7 @@ export function JobDetails({ job, jobStates, onClose, onSave, onIgnore }: Props)
             type="button"
             data-testid="details-ignore"
             onClick={() => onIgnore(job.job_url)}
-            className="rounded-control border border-edge px-3 py-1.5 text-[13px] font-medium text-body transition-colors hover:border-faint hover:text-ink"
+            className="btn"
           >
             {state === "ignored" ? "Ignored" : "Ignore"}
           </button>
@@ -270,7 +267,7 @@ export function JobDetails({ job, jobStates, onClose, onSave, onIgnore }: Props)
             target="_blank"
             rel="noopener noreferrer"
             data-testid="details-apply"
-            className="ml-auto rounded-control bg-ink px-4 py-1.5 text-[13px] font-semibold text-white transition-opacity hover:opacity-85"
+            className="btn-primary ml-auto"
           >
             Apply ↗
           </a>

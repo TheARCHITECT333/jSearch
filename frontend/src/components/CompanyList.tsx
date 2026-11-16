@@ -41,7 +41,7 @@ export function CompanyList({
       <div className="flex items-center justify-between">
         <h2 className="rail-label">Companies</h2>
         <span
-          className={`token ${companies.length === 0 ? "text-ink-faint" : "text-signal"}`}
+          className={`token ${companies.length === 0 ? "text-ink-faint" : "text-primary-dark"}`}
           data-testid="enabled-count"
         >
           {companies.length === 0 ? "none imported" : `${enabledCount}/${companies.length} enabled`}
@@ -49,9 +49,9 @@ export function CompanyList({
       </div>
 
       {companies.length === 0 ? (
-        <p className="mt-3 text-[12px] leading-relaxed text-ink-muted">
-          Import a <code className="font-mono text-ink-text">companies.json</code> file to
-          get started. See <code className="font-mono text-ink-text">companies.example.json</code>{" "}
+        <p className="mt-3 text-[14px] leading-[1.43] tracking-caption text-ink-muted">
+          Import a <code className="text-ink-text">companies.json</code> file to
+          get started. See <code className="text-ink-text">companies.example.json</code>{" "}
           in the project root for the format.
         </p>
       ) : (
@@ -60,23 +60,23 @@ export function CompanyList({
             const isEnabled = enabled[company.name] !== false; // default on
             return (
               <li key={company.name}>
-                <label className="flex cursor-pointer items-start gap-2.5 rounded-control px-1.5 py-2 transition-colors hover:bg-ink-raised">
+                <label className="flex cursor-pointer items-start gap-3 rounded-sm px-2 py-2 transition-colors hover:bg-ink-raised">
                   <input
                     type="checkbox"
                     checked={isEnabled}
                     onChange={(e) => onChangeEnabled(company.name, e.target.checked)}
                     aria-label={`Enable ${company.name}`}
-                    className="mt-0.5 h-3.5 w-3.5 shrink-0 rounded-sm border-ink-line bg-ink accent-signal"
+                    className="mt-0.5 h-4 w-4 shrink-0 accent-primary-dark"
                   />
                   <span className="min-w-0">
                     <span
-                      className={`block truncate text-[13px] font-medium ${
+                      className={`block truncate text-[14px] font-semibold tracking-caption ${
                         isEnabled ? "text-ink-text" : "text-ink-faint line-through"
                       }`}
                     >
                       {company.name}
                     </span>
-                    <span className="block truncate font-mono text-[10px] text-ink-faint">
+                    <span className="block truncate text-[12px] tracking-fine text-ink-faint">
                       {company.careers_url.replace(/^https?:\/\//, "")}
                     </span>
                   </span>
@@ -94,7 +94,7 @@ export function CompanyList({
             data-testid="select-all-companies"
             onClick={() => onSetAllEnabled(true)}
             disabled={enabledCount === companies.length}
-            className="font-mono text-[10px] uppercase tracking-[0.1em] text-ink-faint underline underline-offset-2 transition-colors hover:text-ink-text disabled:no-underline disabled:opacity-40 disabled:hover:text-ink-faint"
+            className="rail-link"
           >
             Select all
           </button>
@@ -103,7 +103,7 @@ export function CompanyList({
             data-testid="unselect-all-companies"
             onClick={() => onSetAllEnabled(false)}
             disabled={enabledCount === 0}
-            className="font-mono text-[10px] uppercase tracking-[0.1em] text-ink-faint underline underline-offset-2 transition-colors hover:text-ink-text disabled:no-underline disabled:opacity-40 disabled:hover:text-ink-faint"
+            className="rail-link"
           >
             Unselect all
           </button>
@@ -139,7 +139,7 @@ export function CompanyList({
                   onClear();
                   setConfirmingClear(false);
                 }}
-                className="rounded-control border border-oxide px-3 py-2 text-[13px] font-medium text-oxide transition-colors hover:bg-oxide/10"
+                className="inline-flex items-center rounded-pill border border-alert-dark px-4 py-2 text-[14px] leading-none tracking-caption text-alert-dark transition-transform active:scale-95"
               >
                 Delete {companies.length}
               </button>
